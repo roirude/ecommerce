@@ -1,35 +1,91 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import "./App.css";
+import { useEffect } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [value, setValue] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [id, setId] = useState(0);
+  const [taskFilters, setTaskFilters] = useState([]);
+  const [filter, setFilter] = useState("");
 
+  useEffect(() => {
+    setTaskFilters(tasks);
+    console.log(filter);
+    const filterTasks = (filter) => {
+      switch (filter) {
+        case "all":
+          setTaskFilters(tasks);
+          break;
+        case "todo":
+          setTaskFilters(tasks.filter((task) => task.status === false));
+          break;
+        case "completed":
+          setTaskFilters(tasks.filter((task) => task.status === true));
+          break;
+        default:
+          setTaskFilters(tasks);
+      }
+    };
+    filterTasks(filter);
+  }, [tasks, filter]);
+
+  const handleChange = (e) => {
+    setValue(e.target.value);
+  };
+
+  const addTask = () => {
+    setTasks([...tasks, { id: id, name: value, status: false }]);
+    setId(id + 1);
+  };
+
+  const handleStatusChange = (updatedtask) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === updatedtask.id ? { ...task, status: !task.status } : task
+      )
+    );
+  };
   return (
     <>
+      {/* 
+        Objective : Create a simple React app that can add task with input and display the task list.
+      */}
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <div>
+          <p>Add a task</p>
+          <p>
+            <input
+              type="text"
+              placeholder="add a task"
+              onChange={handleChange}
+            />
+          </p>
+          <button onClick={addTask}>Add task</button>
+        </div>
+        <div>
+          <h1>Task List</h1>
+          <p>
+            <button onClick={() => setFilter("all")}>All</button>
+            <button onClick={() => setFilter("todo")}>Todo</button>
+            <button onClick={() => setFilter("completed")}>Completed</button>
+          </p>
+          <ul>
+            {taskFilters.map((task) => (
+              <li key={task.id}>
+                <input
+                  type="checkbox"
+                  checked={task.status}
+                  onChange={() => handleStatusChange(task)}
+                />
+                {task.name + " " + task.id}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
